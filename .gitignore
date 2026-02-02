@@ -1,0 +1,19 @@
+# Ignorar archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Dependencias (si se agrega npm en el futuro)
+node_modules/
+package-lock.json
+yarn.lock
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*

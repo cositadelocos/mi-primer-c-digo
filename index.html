@@ -99,49 +99,57 @@
 
       <!-- ═══════════════════════════════════════ -->
       <!-- CANASTA DE BALONCESTO PROFESIONAL -->
-      <!-- Posición: X=0 (centro), Z=7.5 (extremo cancha) -->
-      <!-- Aro: Y=3.05m (altura reglamentaria) -->
+      <!-- ESTRUCTURA ÚNICA INTEGRADA -->
+      <!-- Base: (X=0, Y=0, Z=-14) -->
+      <!-- Aro: Y=3.05m (reglamentario) -->
       <!-- ═══════════════════════════════════════ -->
 
-      <!-- BASE SÓLIDA RECTANGULAR (en el piso) -->
+      <!-- BASE RECTANGULAR SÓLIDA (en el piso) -->
+      <!-- Altura: 0.4m (Y=0 a Y=0.4) -->
       <a-box 
-        id="base-canasta-pro"
-        position="0 0.25 7.5"
+        id="base-canasta-integrada"
+        position="0 0.2 -14"
         width="1.0"
-        height="0.5"
+        height="0.4"
         depth="1.0"
         color="#2A2A2A"
         material="flat">
       </a-box>
 
-      <!-- POSTE VERTICAL METÁLICO (recto, eje Y) -->
+      <!-- POSTE VERTICAL METÁLICO (unido a base) -->
+      <!-- Altura total: 3.8m, desde Y=0.4 hasta Y=3.8 -->
+      <!-- Centro en Y=2.1 -->
       <a-box 
-        id="poste-canasta-pro"
-        position="0 1.525 7.5"
+        id="poste-canasta-integrado"
+        position="0 2.1 -14"
         width="0.12"
-        height="3.05"
+        height="3.4"
         depth="0.12"
         color="#1F1F1F"
         material="flat">
       </a-box>
 
-      <!-- BRAZO HORIZONTAL (sostiene tablero, perpendicular eje X) -->
+      <!-- BRAZO HORIZONTAL METÁLICO (unido al poste) -->
+      <!-- A altura del aro: Y=3.05 -->
+      <!-- Distancia del tablero al poste: 1.2m -->
+      <!-- Centro en Z = -14 - 1.2/2 = -14.6 -->
       <a-box 
-        id="brazo-canasta-pro"
-        position="0 3.05 6.55"
+        id="brazo-canasta-integrado"
+        position="0 3.05 -14.6"
         width="0.1"
         height="0.1"
-        depth="0.95"
+        depth="1.2"
         color="#333333"
         material="flat">
       </a-box>
 
-      <!-- TABLERO RECTANGULAR VERTICAL -->
-      <!-- Perpendicular al piso, paralelo al eje X -->
-      <!-- Plano XY vertical, centrado en X -->
+      <!-- TABLERO GRIS (unido firmemente al brazo) -->
+      <!-- Perpendicular al piso, extremo del brazo -->
+      <!-- Posición Z = -14 - 1.2 = -15.2 -->
+      <!-- Centro vertical en Y = 2.55 -->
       <a-box 
-        id="tablero-canasta-pro"
-        position="0 2.5 5.75"
+        id="tablero-canasta-integrado"
+        position="0 2.55 -15.2"
         width="1.05"
         height="1.05"
         depth="0.05"
@@ -149,22 +157,25 @@
         material="flat">
       </a-box>
 
-      <!-- MARCO DEL TABLERO (metal oscuro, borde) -->
+      <!-- MARCO DEL TABLERO (refuerzo metálico) -->
+      <!-- Borde oscuro integrado -->
       <a-box 
-        id="marco-tablero-pro"
-        position="0 2.5 5.76"
+        id="marco-tablero-integrado"
+        position="0 2.55 -15.19"
         width="1.15"
         height="1.15"
-        depth="0.08"
+        depth="0.1"
         color="#2A2A2A"
         material="flat">
       </a-box>
 
-      <!-- ARO CIRCULAR METÁLICO NARANJA -->
-      <!-- Horizontal, orientado hacia centro de cancha (eje Z) -->
+      <!-- ARO CIRCULAR NARANJA (fijado al tablero) -->
+      <!-- Altura reglamentaria: Y = 3.05m -->
+      <!-- Centrado en tablero: Z = -15.2 -->
+      <!-- Horizontal, orientado hacia centro de cancha -->
       <a-torus 
-        id="aro-canasta-pro"
-        position="0 3.05 6.0"
+        id="aro-canasta-integrado"
+        position="0 3.05 -15.2"
         radius="0.225"
         radius-tubular="0.02"
         color="#FF8C00"
@@ -172,10 +183,11 @@
         rotation="90 0 0">
       </a-torus>
 
-      <!-- RED BLANCA COLGANTE -->
+      <!-- RED BLANCA COLGANTE (suspendida del aro) -->
+      <!-- Cuelga hacia abajo desde Y=3.05 -->
       <a-cylinder 
-        id="red-canasta-pro"
-        position="0 2.3 6.0"
+        id="red-canasta-integrada"
+        position="0 2.35 -15.2"
         radius="0.22"
         height="0.7"
         color="#FFFFFF"

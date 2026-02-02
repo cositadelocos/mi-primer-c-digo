@@ -99,14 +99,14 @@
 
       <!-- ═══════════════════════════════════════ -->
       <!-- CANASTA DE BALONCESTO PROFESIONAL -->
-      <!-- Posición: X=0 (centro), Z=-14 (extremo) -->
+      <!-- Posición: X=0 (centro), Z=7.5 (extremo cancha) -->
       <!-- Aro: Y=3.05m (altura reglamentaria) -->
       <!-- ═══════════════════════════════════════ -->
 
       <!-- BASE SÓLIDA RECTANGULAR (en el piso) -->
       <a-box 
         id="base-canasta-pro"
-        position="0 0.25 -14"
+        position="0 0.25 7.5"
         width="1.0"
         height="0.5"
         depth="1.0"
@@ -117,7 +117,7 @@
       <!-- POSTE VERTICAL METÁLICO (recto, eje Y) -->
       <a-box 
         id="poste-canasta-pro"
-        position="0 1.525 -14"
+        position="0 1.525 7.5"
         width="0.12"
         height="3.05"
         depth="0.12"
@@ -128,7 +128,7 @@
       <!-- BRAZO HORIZONTAL (sostiene tablero, perpendicular eje X) -->
       <a-box 
         id="brazo-canasta-pro"
-        position="0 3.05 -13.05"
+        position="0 3.05 6.55"
         width="0.1"
         height="0.1"
         depth="0.95"
@@ -141,7 +141,7 @@
       <!-- Plano XY vertical, centrado en X -->
       <a-box 
         id="tablero-canasta-pro"
-        position="0 2.5 -12.25"
+        position="0 2.5 5.75"
         width="1.05"
         height="1.05"
         depth="0.05"
@@ -152,7 +152,7 @@
       <!-- MARCO DEL TABLERO (metal oscuro, borde) -->
       <a-box 
         id="marco-tablero-pro"
-        position="0 2.5 -12.24"
+        position="0 2.5 5.76"
         width="1.15"
         height="1.15"
         depth="0.08"
@@ -164,7 +164,7 @@
       <!-- Horizontal, orientado hacia centro de cancha (eje Z) -->
       <a-torus 
         id="aro-canasta-pro"
-        position="0 3.05 -12.4"
+        position="0 3.05 6.0"
         radius="0.225"
         radius-tubular="0.02"
         color="#FF8C00"
@@ -175,7 +175,7 @@
       <!-- RED BLANCA COLGANTE -->
       <a-cylinder 
         id="red-canasta-pro"
-        position="0 2.3 -12.4"
+        position="0 2.3 6.0"
         radius="0.22"
         height="0.7"
         color="#FFFFFF"

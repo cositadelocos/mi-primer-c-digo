@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <title>Cancha de Baloncesto 3D v2</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@1.4.0/dist/aframe-physics-system.min.js"></script>
     <style>
       body { margin: 0; overflow: hidden; }
       #info {
@@ -17,6 +19,18 @@
         border-radius: 5px;
         font-size: 12px;
       }
+      #instrucciones {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        color: white;
+        font-family: monospace;
+        background: rgba(0,0,0,0.6);
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 11px;
+        max-width: 300px;
+      }
     </style>
   </head>
   <body>
@@ -24,8 +38,15 @@
       Cancha de Baloncesto 3D v2<br>
       28m × 15m | Aro: 3.05m
     </div>
+    <div id="instrucciones">
+      <strong>Controles:</strong><br>
+      🖱️ Click en el balón para agarrarlo<br>
+      🖱️ Mueve el ratón mientras lo agarra<br>
+      🖱️ Suelta para lanzar<br>
+      ⌨️ WASD: Movimiento | Ratón: Mirar
+    </div>
     
-    <a-scene background="color: #87CEEB">
+    <a-scene physics="debug: false" background="color: #87CEEB">
       <!-- Iluminación uniforme desde arriba -->
       <a-light type="ambient" color="#FFFFFF" intensity="1.0"></a-light>
       <a-light type="directional" color="#FFFFFF" intensity="0.5" position="0 20 0"></a-light>
@@ -40,7 +61,8 @@
         height="0.05"
         depth="15"
         color="#E8A04C"
-        material="flat">
+        material="flat"
+        static-body>
       </a-box>
 
       <!-- ═══════════════════════════════════════ -->
@@ -193,7 +215,9 @@
         position="0 0.12 0"
         radius="0.12"
         color="#FF0000"
-        material="flat">
+        material="flat"
+        dynamic-body
+        data-agarrado="false">
       </a-sphere>
 
       <!-- ═══════════════════════════════════════ -->
@@ -280,6 +304,7 @@
         </a-cylinder>
 
       </a-entity>
+      <!-- ═══════════════════════════════════════ -->
       <!-- CÁMARA Y CONTROLES -->
       <!-- ═══════════════════════════════════════ -->
       <a-entity 
@@ -291,5 +316,83 @@
       </a-entity>
 
     </a-scene>
-  </body>
-</html>
+
+    <script>
+      // Sistema de agarre y lanzamiento del balón
+      let balonAggarado = false;
+      let balonElement = document.getElementById('balon-baloncesto');
+      let cameraElement = document.getElementById('camera');
+      
+      let posicionMouseAnterior = { x: 0, y: 0 };
+
+      // Click del mouse
+      window.addEventListener('click', (event) => {
+        if (!cameraElement) return;
+        
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, cameraElement.components.camera.camera);
+
+        const balonMesh = balonElement.getObject3D('mesh');
+        if (balonMesh) {
+          const intersects = raycaster.intersectObject(balonMesh);
+
+          if (intersects.length > 0 && !balonAggarado) {
+            // Agarrar el balón
+            balonAggarado = true;
+            balonElement.setAttribute('data-agarrado', 'true');
+            balonElement.body.velocity.set(0, 0, 0);
+            posicionMouseAnterior = { x: event.clientX, y: event.clientY };
+          } else if (balonAggarado) {
+            // Soltar el balón y lanzarlo
+            balonAggarado = false;
+            balonElement.setAttribute('data-agarrado', 'false');
+            
+            // Calcular velocidad basada en movimiento del mouse
+            const deltaX = (event.clientX - posicionMouseAnterior.x) * 0.5;
+            const deltaY = (posicionMouseAnterior.y - event.clientY) * 0.5;
+            
+            // Obtener dirección hacia donde mira la cámara
+            const cameraObject = cameraElement.getObject3D('camera');
+            const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(cameraObject.quaternion);
+            
+            // Aplicar velocidad
+            const velocidad = 20;
+            balonElement.body.velocity.set(
+              direction.x * velocidad + deltaX,
+              direction.y * velocidad + deltaY,
+              direction.z * velocidad
+            );
+          }
+        }
+      });
+
+      // Seguimiento del movimiento del mouse mientras el balón está agarrado
+      window.addEventListener('mousemove', (event) => {
+        if (balonAggarado && cameraElement) {
+          const raycaster = new THREE.Raycaster();
+          const mouse = new THREE.Vector2();
+          mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+          mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+          raycaster.setFromCamera(mouse, cameraElement.components.camera.camera);
+
+          // Colocar el balón a 2 metros frente a la cámara
+          const cameraObject = cameraElement.getObject3D('camera');
+          const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(cameraObject.quaternion);
+          const cameraPos = cameraElement.getAttribute('position');
+          
+          const distancia = 2;
+          balonElement.setAttribute('position', {
+            x: cameraPos.x + direction.x * distancia,
+            y: cameraPos.y + direction.y * distancia,
+            z: cameraPos.z + direction.z * distancia
+          });
+
+          posicionMouseAnterior = { x: event.clientX, y: event.clientY };
+        }
+      });
+    </script>

@@ -185,6 +185,89 @@
       </a-entity>
 
       <!-- ═══════════════════════════════════════ -->
+      <!-- CANASTA DE BALONCESTO SIMÉTRICA -->
+      <!-- Lado opuesto de la cancha -->
+      <!-- ═══════════════════════════════════════ -->
+      <a-entity id="canasta-completa-simetrica" position="-13 0 0" rotation="0 -90 0">
+        
+        <!-- BASE RECTANGULAR SÓLIDA (en el piso) -->
+        <a-box 
+          id="base-canasta-integrada-2"
+          position="0 0.2 0"
+          width="1.0"
+          height="0.4"
+          depth="1.0"
+          color="#2A2A2A"
+          material="flat">
+        </a-box>
+
+        <!-- POSTE VERTICAL METÁLICO (unido a base) -->
+        <a-box 
+          id="poste-canasta-integrado-2"
+          position="0 2.1 0"
+          width="0.12"
+          height="3.4"
+          depth="0.12"
+          color="#1F1F1F"
+          material="flat">
+        </a-box>
+
+        <!-- BRAZO HORIZONTAL METÁLICO (unido al poste) -->
+        <a-box 
+          id="brazo-canasta-integrado-2"
+          position="0 3.05 -0.6"
+          width="0.1"
+          height="0.1"
+          depth="1.2"
+          color="#333333"
+          material="flat">
+        </a-box>
+
+        <!-- TABLERO GRIS (unido firmemente al brazo) -->
+        <a-box 
+          id="tablero-canasta-integrado-2"
+          position="0 2.55 -1.2"
+          width="1.05"
+          height="1.05"
+          depth="0.05"
+          color="#C0C0C0"
+          material="flat">
+        </a-box>
+
+        <!-- MARCO DEL TABLERO (refuerzo metálico) -->
+        <a-box 
+          id="marco-tablero-integrado-2"
+          position="0 2.55 -1.19"
+          width="1.15"
+          height="1.15"
+          depth="0.1"
+          color="#2A2A2A"
+          material="flat">
+        </a-box>
+
+        <!-- ARO CIRCULAR NARANJA (fijado al tablero) -->
+        <a-torus 
+          id="aro-canasta-integrado-2"
+          position="0 2.9 -1.4"
+          radius="0.225"
+          radius-tubular="0.02"
+          color="#FF8C00"
+          material="flat"
+          rotation="90 0 0">
+        </a-torus>
+
+        <!-- RED BLANCA COLGANTE (suspendida del aro) -->
+        <a-cylinder 
+          id="red-canasta-integrada-2"
+          position="0 2.35 -1.4"
+          radius="0.22"
+          height="0.7"
+          color="#FFFFFF"
+          material="flat"
+          opacity="0.75">
+        </a-cylinder>
+
+      </a-entity>
       <!-- CÁMARA Y CONTROLES -->
       <!-- ═══════════════════════════════════════ -->
       <a-entity 

@@ -39,11 +39,13 @@
       28m × 15m | Aro: 3.05m
     </div>
     <div id="instrucciones">
-      <strong>Controles:</strong><br>
-      🖱️ Click en el balón para agarrarlo<br>
-      🖱️ Mueve el ratón mientras lo agarra<br>
-      🖱️ Suelta para lanzar<br>
-      ⌨️ WASD: Movimiento | Ratón: Mirar
+      <strong>Controles Mejorados:</strong><br>
+      🖱️ <strong>Click</strong> en el balón para agarrarlo<br>
+      🖱️ <strong>Mueve el ratón</strong> para manipular (arriba/abajo/lados)<br>
+      🖱️ <strong>Scroll</strong> para acercar/alejar el balón<br>
+      🖱️ <strong>Suelta</strong> (mouseup) para lanzar<br>
+      ⌨️ <strong>ESC</strong> para soltar rápido<br>
+      ⌨️ <strong>WASD</strong>: Movimiento | <strong>Ratón</strong>: Mirar
     </div>
     
     <a-scene physics="debug: false" background="color: #87CEEB">
@@ -318,23 +320,27 @@
     </a-scene>
 
     <script>
-      // Sistema de agarre y lanzamiento del balón
+      // Sistema mejorado de agarre y lanzamiento del balón
       let balonAggarado = false;
       let balonElement = document.getElementById('balon-baloncesto');
       let cameraElement = document.getElementById('camera');
       
+      let velocidadMouseX = 0;
+      let velocidadMouseY = 0;
       let posicionMouseAnterior = { x: 0, y: 0 };
+      let distanciaBalonCamara = 2.5;
 
-      // Click del mouse
-      window.addEventListener('click', (event) => {
-        if (!cameraElement) return;
+      // Mejorar detección del click en el balón
+      document.addEventListener('mousedown', (event) => {
+        if (!cameraElement || !balonElement) return;
         
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-        raycaster.setFromCamera(mouse, cameraElement.components.camera.camera);
+        const cameraObj = cameraElement.getObject3D('camera');
+        raycaster.setFromCamera(mouse, cameraObj);
 
         const balonMesh = balonElement.getObject3D('mesh');
         if (balonMesh) {
@@ -344,55 +350,105 @@
             // Agarrar el balón
             balonAggarado = true;
             balonElement.setAttribute('data-agarrado', 'true');
-            balonElement.body.velocity.set(0, 0, 0);
+            balonElement.setAttribute('color', '#FF5555'); // Cambiar color
+            
+            // Detener movimiento
+            if (balonElement.body) {
+              balonElement.body.velocity.set(0, 0, 0);
+              balonElement.body.angularVelocity.set(0, 0, 0);
+            }
+            
             posicionMouseAnterior = { x: event.clientX, y: event.clientY };
-          } else if (balonAggarado) {
-            // Soltar el balón y lanzarlo
-            balonAggarado = false;
-            balonElement.setAttribute('data-agarrado', 'false');
-            
-            // Calcular velocidad basada en movimiento del mouse
-            const deltaX = (event.clientX - posicionMouseAnterior.x) * 0.5;
-            const deltaY = (posicionMouseAnterior.y - event.clientY) * 0.5;
-            
+            velocidadMouseX = 0;
+            velocidadMouseY = 0;
+          }
+        }
+      });
+
+      // Soltar el balón con click derecho o tecla
+      document.addEventListener('mouseup', (event) => {
+        if (balonAggarado) {
+          // Soltar el balón y lanzarlo
+          balonAggarado = false;
+          balonElement.setAttribute('data-agarrado', 'false');
+          balonElement.setAttribute('color', '#FF0000'); // Volver al color original
+
+          if (balonElement.body) {
             // Obtener dirección hacia donde mira la cámara
             const cameraObject = cameraElement.getObject3D('camera');
             const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(cameraObject.quaternion);
             
+            // Velocidad base más velocidad del mouse
+            const velocidadBase = 25;
+            const velocidadMouse = Math.sqrt(velocidadMouseX ** 2 + velocidadMouseY ** 2) * 0.3;
+            
             // Aplicar velocidad
-            const velocidad = 20;
             balonElement.body.velocity.set(
-              direction.x * velocidad + deltaX,
-              direction.y * velocidad + deltaY,
-              direction.z * velocidad
+              direction.x * velocidadBase + velocidadMouseX * 0.8,
+              direction.y * velocidadBase + velocidadMouseY * 0.8,
+              direction.z * velocidadBase
+            );
+
+            // Agregar rotación al balón
+            balonElement.body.angularVelocity.set(
+              velocidadMouseY * 0.5,
+              velocidadMouseX * 0.5,
+              (velocidadMouseX - velocidadMouseY) * 0.3
             );
           }
         }
       });
 
-      // Seguimiento del movimiento del mouse mientras el balón está agarrado
+      // Movimiento mejorado del mouse mientras el balón está agarrado
       window.addEventListener('mousemove', (event) => {
-        if (balonAggarado && cameraElement) {
-          const raycaster = new THREE.Raycaster();
-          const mouse = new THREE.Vector2();
-          mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-          mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        if (balonAggarado && cameraElement && balonElement) {
+          // Calcular velocidad del mouse
+          velocidadMouseX = (event.clientX - posicionMouseAnterior.x);
+          velocidadMouseY = (event.clientY - posicionMouseAnterior.y);
 
-          raycaster.setFromCamera(mouse, cameraElement.components.camera.camera);
-
-          // Colocar el balón a 2 metros frente a la cámara
+          // Posicionar el balón frente a la cámara
           const cameraObject = cameraElement.getObject3D('camera');
           const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(cameraObject.quaternion);
           const cameraPos = cameraElement.getAttribute('position');
           
-          const distancia = 2;
+          // Permitir mover el balón hacia arriba/abajo con el mouse
+          const offsetVertical = (event.clientY - window.innerHeight / 2) * 0.002;
+          const offsetHorizontal = (event.clientX - window.innerWidth / 2) * 0.002;
+          
+          const posX = cameraPos.x + direction.x * distanciaBalonCamara + offsetHorizontal;
+          const posY = cameraPos.y + direction.y * distanciaBalonCamara + offsetVertical;
+          const posZ = cameraPos.z + direction.z * distanciaBalonCamara;
+
           balonElement.setAttribute('position', {
-            x: cameraPos.x + direction.x * distancia,
-            y: cameraPos.y + direction.y * distancia,
-            z: cameraPos.z + direction.z * distancia
+            x: posX,
+            y: posY,
+            z: posZ
           });
 
+          // Aplicar pequeña rotación visual mientras se mueve
+          if (balonElement.body) {
+            balonElement.body.velocity.set(0, 0, 0);
+            balonElement.body.angularVelocity.set(0, 0, 0);
+          }
+
           posicionMouseAnterior = { x: event.clientX, y: event.clientY };
+        }
+      });
+
+      // Ajustar distancia del balón con scroll
+      window.addEventListener('wheel', (event) => {
+        if (balonAggarado) {
+          event.preventDefault();
+          distanciaBalonCamara += event.deltaY > 0 ? -0.1 : 0.1;
+          distanciaBalonCamara = Math.max(1.5, Math.min(4, distanciaBalonCamara));
+        }
+      }, { passive: false });
+
+      // Soltar balón con tecla ESC
+      window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && balonAggarado) {
+          const mouseUpEvent = new MouseEvent('mouseup');
+          document.dispatchEvent(mouseUpEvent);
         }
       });
     </script>

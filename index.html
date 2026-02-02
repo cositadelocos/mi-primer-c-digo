@@ -100,100 +100,88 @@
       <!-- ═══════════════════════════════════════ -->
       <!-- CANASTA DE BALONCESTO PROFESIONAL -->
       <!-- ESTRUCTURA ÚNICA INTEGRADA -->
-      <!-- Base: (X=0, Y=0, Z=-14) -->
-      <!-- Aro: Y=3.05m (reglamentario) -->
+      <!-- Rotada 90 grados hacia la derecha -->
       <!-- ═══════════════════════════════════════ -->
+      <a-entity id="canasta-completa" rotation="0 90 0">
+        
+        <!-- BASE RECTANGULAR SÓLIDA (en el piso) -->
+        <a-box 
+          id="base-canasta-integrada"
+          position="0 0.2 0"
+          width="1.0"
+          height="0.4"
+          depth="1.0"
+          color="#2A2A2A"
+          material="flat">
+        </a-box>
 
-      <!-- BASE RECTANGULAR SÓLIDA (en el piso) -->
-      <!-- Altura: 0.4m (Y=0 a Y=0.4) -->
-      <a-box 
-        id="base-canasta-integrada"
-        position="0 0.2 0"
-        width="1.0"
-        height="0.4"
-        depth="1.0"
-        color="#2A2A2A"
-        material="flat">
-      </a-box>
+        <!-- POSTE VERTICAL METÁLICO (unido a base) -->
+        <a-box 
+          id="poste-canasta-integrado"
+          position="0 2.1 0"
+          width="0.12"
+          height="3.4"
+          depth="0.12"
+          color="#1F1F1F"
+          material="flat">
+        </a-box>
 
-      <!-- POSTE VERTICAL METÁLICO (unido a base) -->
-      <!-- Altura total: 3.8m, desde Y=0.4 hasta Y=3.8 -->
-      <!-- Centro en Y=2.1 -->
-      <a-box 
-        id="poste-canasta-integrado"
-        position="0 2.1 0"
-        width="0.12"
-        height="3.4"
-        depth="0.12"
-        color="#1F1F1F"
-        material="flat">
-      </a-box>
+        <!-- BRAZO HORIZONTAL METÁLICO (unido al poste) -->
+        <a-box 
+          id="brazo-canasta-integrado"
+          position="0 3.05 -0.6"
+          width="0.1"
+          height="0.1"
+          depth="1.2"
+          color="#333333"
+          material="flat">
+        </a-box>
 
-      <!-- BRAZO HORIZONTAL METÁLICO (unido al poste) -->
-      <!-- A altura del aro: Y=3.05 -->
-      <!-- Distancia del tablero al poste: 1.2m -->
-      <!-- Centro en Z = -0.6 -->
-      <a-box 
-        id="brazo-canasta-integrado"
-        position="0 3.05 -0.6"
-        width="0.1"
-        height="0.1"
-        depth="1.2"
-        color="#333333"
-        material="flat">
-      </a-box>
+        <!-- TABLERO GRIS (unido firmemente al brazo) -->
+        <a-box 
+          id="tablero-canasta-integrado"
+          position="0 2.55 -1.2"
+          width="1.05"
+          height="1.05"
+          depth="0.05"
+          color="#C0C0C0"
+          material="flat">
+        </a-box>
 
-      <!-- TABLERO GRIS (unido firmemente al brazo) -->
-      <!-- Perpendicular al piso, extremo del brazo -->
-      <!-- Posición Z = -1.2 -->
-      <!-- Centro vertical en Y = 2.55 -->
-      <a-box 
-        id="tablero-canasta-integrado"
-        position="0 2.55 -1.2"
-        width="1.05"
-        height="1.05"
-        depth="0.05"
-        color="#C0C0C0"
-        material="flat">
-      </a-box>
+        <!-- MARCO DEL TABLERO (refuerzo metálico) -->
+        <a-box 
+          id="marco-tablero-integrado"
+          position="0 2.55 -1.19"
+          width="1.15"
+          height="1.15"
+          depth="0.1"
+          color="#2A2A2A"
+          material="flat">
+        </a-box>
 
-      <!-- MARCO DEL TABLERO (refuerzo metálico) -->
-      <!-- Borde oscuro integrado -->
-      <a-box 
-        id="marco-tablero-integrado"
-        position="0 2.55 -1.19"
-        width="1.15"
-        height="1.15"
-        depth="0.1"
-        color="#2A2A2A"
-        material="flat">
-      </a-box>
+        <!-- ARO CIRCULAR NARANJA (fijado al tablero) -->
+        <a-torus 
+          id="aro-canasta-integrado"
+          position="0 2.9 -1.4"
+          radius="0.225"
+          radius-tubular="0.02"
+          color="#FF8C00"
+          material="flat"
+          rotation="90 0 0">
+        </a-torus>
 
-      <!-- ARO CIRCULAR NARANJA (fijado al tablero) -->
-      <!-- Altura reglamentaria: Y = 3.05m -->
-      <!-- Desplazado +0.6m hacia centro de cancha en eje Z -->
-      <!-- Horizontal, orientado hacia centro de cancha -->
-      <a-torus 
-        id="aro-canasta-integrado"
-        position="0 2.9 -1.4"
-        radius="0.225"
-        radius-tubular="0.02"
-        color="#FF8C00"
-        material="flat"
-        rotation="90 0 0">
-      </a-torus>
+        <!-- RED BLANCA COLGANTE (suspendida del aro) -->
+        <a-cylinder 
+          id="red-canasta-integrada"
+          position="0 2.35 -1.4"
+          radius="0.22"
+          height="0.7"
+          color="#FFFFFF"
+          material="flat"
+          opacity="0.75">
+        </a-cylinder>
 
-      <!-- RED BLANCA COLGANTE (suspendida del aro) -->
-      <!-- Cuelga hacia abajo desde Y=3.05, separada del tablero -->
-      <a-cylinder 
-        id="red-canasta-integrada"
-        position="0 2.35 -1.4"
-        radius="0.22"
-        height="0.7"
-        color="#FFFFFF"
-        material="flat"
-        opacity="0.75">
-      </a-cylinder>
+      </a-entity>
 
       <!-- ═══════════════════════════════════════ -->
       <!-- CÁMARA Y CONTROLES -->

@@ -39,13 +39,47 @@
       28m × 15m | Aro: 3.05m
     </div>
     <div id="instrucciones">
-      <strong>Controles Mejorados:</strong><br>
-      🖱️ <strong>Click</strong> en el balón para agarrarlo<br>
-      🖱️ <strong>Mueve el ratón</strong> para manipular (arriba/abajo/lados)<br>
-      🖱️ <strong>Scroll</strong> para acercar/alejar el balón<br>
-      🖱️ <strong>Suelta</strong> (mouseup) para lanzar<br>
-      ⌨️ <strong>ESC</strong> para soltar rápido<br>
+      <strong>🎮 CONTROLES:</strong><br>
+      🖱️ <strong>Click izquierdo</strong> para agarrar balón<br>
+      ⌨️ <strong>W / ↑</strong> para subir balón<br>
+      ⌨️ <strong>S / ↓</strong> para bajar balón<br>
+      🖱️ <strong>Suelta click</strong> para lanzar<br>
+      ⌨️ <strong>ESC</strong> para soltar sin lanzar<br>
       ⌨️ <strong>WASD</strong>: Movimiento | <strong>Ratón</strong>: Mirar
+    </div>
+
+    <!-- UI para mensajes y barra de fuerza -->
+    <div id="ui-message" style="position: absolute; top: 60px; left: 10px; color: white; font-family: monospace; background: rgba(0,0,0,0.5); padding: 8px; border-radius: 4px; font-size: 13px; z-index: 9999;">
+      Click para coger balón
+    </div>
+    <div id="power-container" style="position: absolute; top: 100px; left: 10px; width: 220px; height: 14px; background: rgba(255,255,255,0.12); border-radius: 7px; display: none; z-index: 9999;">
+      <div id="power-bar" style="height: 100%; width: 0%; background: linear-gradient(90deg,#ff8c00,#ff0000); border-radius: 7px;"></div>
+    </div>
+
+    <!-- UI para controles de movimiento vertical -->
+    <div id="vertical-controls" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; color: white; font-family: monospace; background: rgba(0,0,0,0.6); padding: 20px; border-radius: 8px; display: none; z-index: 9999; min-width: 150px;">
+      <div style="font-size: 16px; margin-bottom: 15px;"><strong>🎯 MOVIMIENTO VERTICAL</strong></div>
+      <div style="font-size: 14px; margin: 10px 0; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+        <strong>W</strong> ⬆️ SUBIR
+      </div>
+      <div style="font-size: 14px; margin: 10px 0; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+        <strong>S</strong> ⬇️ BAJAR
+      </div>
+      <div style="font-size: 12px; margin-top: 15px; color: #FFD700;">Mantén CLICK para sostener</div>
+    </div>
+
+    <!-- PANEL DE DEBUG -->
+    <button id="debug-toggle" style="position: fixed; bottom: 20px; right: 20px; padding: 10px 15px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; z-index: 10000;">📊 DEBUG</button>
+    
+    <div id="debug-panel" style="position: fixed; bottom: 70px; right: 20px; background: rgba(0,0,0,0.85); color: #00FF00; border: 2px solid #00FF00; border-radius: 5px; padding: 15px; font-family: monospace; font-size: 12px; display: none; z-index: 10000; min-width: 250px; max-height: 300px; overflow-y: auto;">
+      <div style="color: #FFD700; margin-bottom: 10px; font-weight: bold;">🎮 INFORMACIÓN EN VIVO</div>
+      <div><strong>Estado:</strong> <span id="debug-estado">Esperando...</span></div>
+      <div><strong>Fuerza:</strong> <span id="debug-fuerza">0%</span></div>
+      <div><strong>Velocidad:</strong> <span id="debug-velocidad">0 m/s</span></div>
+      <div><strong>Altura:</strong> <span id="debug-altura">1.50 m</span></div>
+      <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #00FF00;">
+        <div id="debug-log" style="color: #CCFF00; max-height: 150px; overflow-y: auto;"></div>
+      </div>
     </div>
     
     <a-scene physics="debug: false" background="color: #87CEEB">
@@ -53,6 +87,9 @@
       <a-light type="ambient" color="#FFFFFF" intensity="1.0"></a-light>
       <a-light type="directional" color="#FFFFFF" intensity="0.5" position="0 20 0"></a-light>
 
+      <!-- Contenedor de cancha para rotación de 90 grados -->
+      <a-entity id="cancha-container" rotation="0 90 0">
+      
       <!-- ═══════════════════════════════════════ -->
       <!-- PISO: Cancha de baloncesto 28m × 15m -->
       <!-- ═══════════════════════════════════════ -->
@@ -124,8 +161,6 @@
       <!-- ═══════════════════════════════════════ -->
       <!-- CANASTA DE BALONCESTO PROFESIONAL -->
       <!-- ESTRUCTURA ÚNICA INTEGRADA -->
-      <!-- Rotada 90 grados hacia la derecha -->
-      <!-- Movida al extremo de la cancha -->
       <!-- ═══════════════════════════════════════ -->
       <a-entity id="canasta-completa" position="13 0 0" rotation="0 90 0">
         
@@ -208,6 +243,8 @@
 
       </a-entity>
 
+      </a-entity>
+
       <!-- ═══════════════════════════════════════ -->
       <!-- BALÓN DE BALONCESTO -->
       <!-- Ubicado en el centro de la cancha -->
@@ -218,7 +255,7 @@
         radius="0.12"
         color="#FF0000"
         material="flat"
-        dynamic-body
+        dynamic-body="mass: 1; restitution: 0.85; friction: 0.3; linearDamping: 0.3; angularDamping: 0.3"
         data-agarrado="false">
       </a-sphere>
 
@@ -226,86 +263,10 @@
       <!-- CANASTA DE BALONCESTO SIMÉTRICA -->
       <!-- Lado opuesto de la cancha -->
       <!-- ═══════════════════════════════════════ -->
-      <a-entity id="canasta-completa-simetrica" position="-13 0 0" rotation="0 -90 0">
-        
-        <!-- BASE RECTANGULAR SÓLIDA (en el piso) -->
-        <a-box 
-          id="base-canasta-integrada-2"
-          position="0 0.2 0"
-          width="1.0"
-          height="0.4"
-          depth="1.0"
-          color="#2A2A2A"
-          material="flat">
-        </a-box>
-
-        <!-- POSTE VERTICAL METÁLICO (unido a base) -->
-        <a-box 
-          id="poste-canasta-integrado-2"
-          position="0 2.1 0"
-          width="0.12"
-          height="3.4"
-          depth="0.12"
-          color="#1F1F1F"
-          material="flat">
-        </a-box>
-
-        <!-- BRAZO HORIZONTAL METÁLICO (unido al poste) -->
-        <a-box 
-          id="brazo-canasta-integrado-2"
-          position="0 3.05 -0.6"
-          width="0.1"
-          height="0.1"
-          depth="1.2"
-          color="#333333"
-          material="flat">
-        </a-box>
-
-        <!-- TABLERO GRIS (unido firmemente al brazo) -->
-        <a-box 
-          id="tablero-canasta-integrado-2"
-          position="0 2.55 -1.2"
-          width="1.05"
-          height="1.05"
-          depth="0.05"
-          color="#C0C0C0"
-          material="flat">
-        </a-box>
-
-        <!-- MARCO DEL TABLERO (refuerzo metálico) -->
-        <a-box 
-          id="marco-tablero-integrado-2"
-          position="0 2.55 -1.19"
-          width="1.15"
-          height="1.15"
-          depth="0.1"
-          color="#2A2A2A"
-          material="flat">
-        </a-box>
-
-        <!-- ARO CIRCULAR NARANJA (fijado al tablero) -->
-        <a-torus 
-          id="aro-canasta-integrado-2"
-          position="0 2.9 -1.4"
-          radius="0.225"
-          radius-tubular="0.02"
-          color="#FF8C00"
-          material="flat"
-          rotation="90 0 0">
-        </a-torus>
-
-        <!-- RED BLANCA COLGANTE (suspendida del aro) -->
-        <a-cylinder 
-          id="red-canasta-integrada-2"
-          position="0 2.35 -1.4"
-          radius="0.22"
-          height="0.7"
-          color="#FFFFFF"
-          material="flat"
-          opacity="0.75">
-        </a-cylinder>
-
+      
       </a-entity>
+      <!-- Cierra contenedor de cancha -->
+      
       <!-- ═══════════════════════════════════════ -->
       <!-- CÁMARA Y CONTROLES -->
       <!-- ═══════════════════════════════════════ -->
@@ -320,135 +281,363 @@
     </a-scene>
 
     <script>
-      // Sistema mejorado de agarre y lanzamiento del balón
-      let balonAggarado = false;
-      let balonElement = document.getElementById('balon-baloncesto');
-      let cameraElement = document.getElementById('camera');
+      // Sistema de lanzamiento: Click izquierdo (mantener) = agarrar y cargar, soltar = lanzar
+      const balonElement = document.getElementById('balon-baloncesto');
+      const cameraElement = document.getElementById('camera');
+      const uiMessage = document.getElementById('ui-message');
+      const powerContainer = document.getElementById('power-container');
+      const powerBar = document.getElementById('power-bar');
+      const verticalControls = document.getElementById('vertical-controls');
+
+      // ELEMENTOS DEL DEBUG PANEL
+      const debugToggle = document.getElementById('debug-toggle');
+      const debugPanel = document.getElementById('debug-panel');
+      const debugEstado = document.getElementById('debug-estado');
+      const debugFuerza = document.getElementById('debug-fuerza');
+      const debugVelocidad = document.getElementById('debug-velocidad');
+      const debugAltura = document.getElementById('debug-altura');
+      const debugLog = document.getElementById('debug-log');
+
+      // ═══════════════════════════════════════════════════════════
+      // DECLARAR TODAS LAS VARIABLES GLOBALES PRIMERO
+      // ═══════════════════════════════════════════════════════════
+      let agarrado = false;
+      let charging = false;
+      let power = 0; // 0..1
+      const chargeRate = 0.8; // porcentaje por segundo
+      let chargeDirection = 1; // 1 para subir, -1 para bajar
+      const minSpeed = 8;
+      const maxSpeed = 35;
+      let chargeStartY = 0;
+      let lastMouseY = 0;
+      let pitchOffset = 0; // en radianes
+      let balonHeldY = 1.5;
+      const minHeldY = 0.8;
+      const maxHeldY = 2.5;
+      const moveSpeed = 0.15;
+      let rafId = null;
       
-      let velocidadMouseX = 0;
-      let velocidadMouseY = 0;
-      let posicionMouseAnterior = { x: 0, y: 0 };
-      let distanciaBalonCamara = 2.5;
+      // Controles de teclado
+      const keysPressed = {
+        'w': false,
+        'W': false,
+        'ArrowUp': false,
+        's': false,
+        'S': false,
+        'ArrowDown': false
+      };
 
-      // Mejorar detección del click en el balón
-      document.addEventListener('mousedown', (event) => {
-        if (!cameraElement || !balonElement) return;
+      // Toggle del debug panel
+      debugToggle.addEventListener('click', () => {
+        debugPanel.style.display = debugPanel.style.display === 'none' ? 'block' : 'none';
+      });
+
+      // Función para agregar logs al debug panel
+      function addDebugLog(message) {
+        const timestamp = new Date().toLocaleTimeString();
+        const logEntry = document.createElement('div');
+        logEntry.textContent = `[${timestamp}] ${message}`;
+        debugLog.appendChild(logEntry);
+        debugLog.scrollTop = debugLog.scrollHeight;
+      }
+
+      // Función para actualizar los valores del debug panel
+      function updateDebugInfo() {
+        debugEstado.textContent = agarrado ? '🔴 AGARRADO' : '✅ LIBRE';
+        debugFuerza.textContent = Math.round(power * 100) + '%';
+        debugAltura.textContent = balonHeldY.toFixed(2) + ' m';
+      }
+
+      // Inicializar info
+      updateDebugInfo();
+
+      function startCharging() {
+        charging = true;
+        power = 0;
+        chargeDirection = 1; // Resetear dirección para que comience a subir
+        powerContainer.style.display = 'block';
+        uiMessage.textContent = 'Suelta para lanzar';
+        lastMouseY = chargeStartY;
+        pitchOffset = 0;
+        rafId = requestAnimationFrame(updateCharge);
+      }
+
+      function stopCharging() {
+        charging = false;
+        powerContainer.style.display = 'none';
+        powerBar.style.width = '0%';
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+
+      function updateCharge(timestamp) {
+        // Actualizar la barra de fuerza: sube y baja constantemente
+        power += chargeDirection * chargeRate * (1/60);
         
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        // Si llega al máximo (1), comienza a bajar
+        if (power >= 1) {
+          power = 1;
+          chargeDirection = -1;
+        }
+        // Si llega al mínimo (0), comienza a subir
+        if (power <= 0) {
+          power = 0;
+          chargeDirection = 1;
+        }
+        
+        powerBar.style.width = (power * 100) + '%';
+        rafId = requestAnimationFrame(updateCharge);
+      }
 
-        const cameraObj = cameraElement.getObject3D('camera');
-        raycaster.setFromCamera(mouse, cameraObj);
+      // Detectar click en el balón por distancia en pantalla - VERSIÓN SIMPLIFICADA
+      function isClickOnBall(event) {
+        try {
+          const cameraObj = cameraElement.getObject3D('camera');
+          if (!cameraObj) return false;
 
-        const balonMesh = balonElement.getObject3D('mesh');
-        if (balonMesh) {
-          const intersects = raycaster.intersectObject(balonMesh);
+          // Obtener posición del balón en el mundo
+          const balonPos = balonElement.getAttribute('position');
+          const balonWorldPos = new THREE.Vector3(balonPos.x, balonPos.y, balonPos.z);
+          
+          // Convertir a coordenadas de pantalla
+          const vector = balonWorldPos.project(cameraObj);
+          const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+          const y = -(vector.y * 0.5 - 0.5) * window.innerHeight;
 
-          if (intersects.length > 0 && !balonAggarado) {
-            // Agarrar el balón
-            balonAggarado = true;
-            balonElement.setAttribute('data-agarrado', 'true');
-            balonElement.setAttribute('color', '#FF5555'); // Cambiar color
+          // Distancia del click al balón en pantalla
+          const dx = event.clientX - x;
+          const dy = event.clientY - y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          const hitRadius = 100; // píxeles - más grande para ser más fácil
+          const hit = distance < hitRadius;
+          
+          console.log('CLICK DEBUG: distance=' + Math.round(distance) + 'px, hit=' + hit);
+          
+          return hit;
+        } catch(e) {
+          console.error('Error en isClickOnBall:', e);
+          return false;
+        }
+      }
+
+      document.addEventListener('mousedown', (event) => {
+        console.log('MOUSEDOWN event fired, button:', event.button);
+        
+        if (event.button !== 0) {
+          console.log('No es botón izquierdo');
+          return;
+        }
+        
+        if (!cameraElement) {
+          console.log('No hay cameraElement');
+          return;
+        }
+        if (!balonElement) {
+          console.log('No hay balonElement');
+          return;
+        }
+        
+        const onBall = isClickOnBall(event);
+        console.log('¿Está en el balón?', onBall);
+        
+        if (!onBall) {
+          console.log('Click no está en el balón');
+          return;
+        }
+
+        console.log('✅ AGARRANDO BALÓN!');
+
+        agarrado = true;
+        addDebugLog('✅ AGARRANDO BALÓN');
+        updateDebugInfo();
+        balonElement.setAttribute('data-agarrado', 'true');
+        balonElement.setAttribute('color', '#FF5555');
+        uiMessage.textContent = 'Suelta para lanzar';
+        chargeStartY = event.clientY;
+        lastMouseY = event.clientY;
+        power = 0;
+        
+        cameraElement.setAttribute('look-controls', 'enabled: false');
+        cameraElement.setAttribute('wasd-controls', 'enabled: false');
+        
+        verticalControls.style.display = 'block';
+        
+        const currentPos = balonElement.getAttribute('position');
+        balonHeldY = currentPos.y;
+        
+        startCharging();
+
+        if (balonElement.body) {
+          balonElement.body.velocity.set(0, 0, 0);
+          balonElement.body.angularVelocity.set(0,0,0);
+        }
+      });
+
+      // Controles de teclado para subir/bajar el balón
+      window.addEventListener('keydown', (event) => {
+        if (event.key === 'w' || event.key === 'W' || event.key === 'ArrowUp') {
+          keysPressed['w'] = true;
+          keysPressed['ArrowUp'] = true;
+        }
+        if (event.key === 's' || event.key === 'S' || event.key === 'ArrowDown') {
+          keysPressed['s'] = true;
+          keysPressed['ArrowDown'] = true;
+        }
+      });
+
+      window.addEventListener('keyup', (event) => {
+        if (event.key === 'w' || event.key === 'W' || event.key === 'ArrowUp') {
+          keysPressed['w'] = false;
+          keysPressed['ArrowUp'] = false;
+        }
+        if (event.key === 's' || event.key === 'S' || event.key === 'ArrowDown') {
+          keysPressed['s'] = false;
+          keysPressed['ArrowDown'] = false;
+        }
+      });
+
+      document.addEventListener('mouseup', (event) => {
+        console.log('🖱️ MOUSEUP detectado');
+        if (event.button !== 0) return;
+        if (!agarrado) return;
+
+        // POSICIÓN ACTUAL DEL BALÓN
+        const balonPos = balonElement.getAttribute('position');
+        const balónPosActual = new THREE.Vector3(balonPos.x, balonPos.y, balonPos.z);
+
+        // POSICIÓN DE LA CANASTA
+        const canastaPos = new THREE.Vector3(13, 3.05, 0);
+
+        // CALCULAR DIRECCIÓN HACIA LA CANASTA
+        const dirHaciaCanasta = canastaPos.clone().sub(balónPosActual).normalize();
+
+        // CALCULAR VELOCIDAD
+        const speed = minSpeed + power * (maxSpeed - minSpeed);
+
+        console.log('🚀 Lanzando hacia canasta con velocidad', speed.toFixed(2), 'm/s');
+
+        // CAMBIAR ESTADO
+        agarrado = false;
+        balonElement.setAttribute('data-agarrado', 'false');
+        balonElement.setAttribute('color', '#FF0000');
+        
+        // Reactivar controles de cámara
+        cameraElement.setAttribute('look-controls', 'enabled: true');
+        cameraElement.setAttribute('wasd-controls', 'enabled: true');
+        verticalControls.style.display = 'none';
+
+        stopCharging();
+
+        // APLICAR VELOCIDAD AL OBJETO 3D DIRECTLY
+        setTimeout(() => {
+          try {
+            // Obtener el objeto 3D del balón
+            const mesh = balonElement.object3D;
             
-            // Detener movimiento
-            if (balonElement.body) {
-              balonElement.body.velocity.set(0, 0, 0);
-              balonElement.body.angularVelocity.set(0, 0, 0);
+            // Acceder al body a través del atributo userData o directamente
+            let body = balonElement.body;
+            
+            console.log('Body object:', body);
+            console.log('Body type:', typeof body);
+            
+            if (body && body.velocity) {
+              console.log('✅ Aplicando velocidad al body');
+              // Aplicar directamente a las propiedades del body
+              body.velocity.x = dirHaciaCanasta.x * speed;
+              body.velocity.y = dirHaciaCanasta.y * speed;
+              body.velocity.z = dirHaciaCanasta.z * speed;
+              
+              console.log('Velocity set to:', body.velocity.x, body.velocity.y, body.velocity.z);
+              
+              // Agregar rotación
+              if (body.angularVelocity) {
+                body.angularVelocity.x = (Math.random()-0.5)*5;
+                body.angularVelocity.y = (Math.random()-0.5)*5;
+                body.angularVelocity.z = (Math.random()-0.5)*5;
+              }
+            } else {
+              console.log('❌ No hay body o no tiene velocity property');
+            }
+          } catch(err) {
+            console.error('Error al aplicar velocidad:', err);
+          }
+        }, 50);
+
+        uiMessage.textContent = 'Click para coger balón';
+      });
+
+      // si el usuario presiona ESC mientras está agarrado, soltar sin lanzar
+      window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && agarrado) {
+          agarrado = false;
+          balonElement.setAttribute('data-agarrado', 'false');
+          balonElement.setAttribute('color', '#FF0000');
+          uiMessage.textContent = 'Click para coger balón';
+          
+          // Reactivar controles de cámara
+          cameraElement.setAttribute('look-controls', 'enabled: true');
+          cameraElement.setAttribute('wasd-controls', 'enabled: true');
+          
+          verticalControls.style.display = 'none';
+          stopCharging();
+        }
+      });
+
+      // Depuración
+      console.log('Ball controls script loaded');
+
+      // Mientras el balón está agarrado, controlarlo solo en eje Y (arriba/abajo), X/Z fijo frente a cámara
+      let lastLaunchTime = 0;
+      function startTickLoop() {
+        function tick() {
+          // Actualizar altura con teclado si el balón está agarrado
+          if (agarrado) {
+            if (keysPressed['w'] || keysPressed['W'] || keysPressed['ArrowUp']) {
+              balonHeldY = Math.min(maxHeldY, balonHeldY + moveSpeed);
+            }
+            if (keysPressed['s'] || keysPressed['S'] || keysPressed['ArrowDown']) {
+              balonHeldY = Math.max(minHeldY, balonHeldY - moveSpeed);
             }
             
-            posicionMouseAnterior = { x: event.clientX, y: event.clientY };
-            velocidadMouseX = 0;
-            velocidadMouseY = 0;
+            // Fijar posición del balón mientras está agarrado
+            const cameraObj = cameraElement.getObject3D('camera');
+            if (cameraObj) {
+              const forward = new THREE.Vector3(0,0,-1).applyQuaternion(cameraObj.quaternion).normalize();
+              const camPos = cameraElement.getAttribute('position');
+              const holdDist = 1.2; // metros frente a la cámara - ACERCADO para mejor visibilidad
+              
+              // Posición objetivo: X/Z constante (frente a cámara), Y controlado por teclado
+              const targetX = camPos.x + forward.x * holdDist;
+              const targetZ = camPos.z + forward.z * holdDist;
+              const targetY = balonHeldY; // controlado por W/S
+              
+              // Fijar posición
+              balonElement.setAttribute('position', {
+                x: targetX,
+                y: targetY,
+                z: targetZ
+              });
+              
+              // Velocidad a cero mientras está agarrado (IMPORTANTE: sin esto cae)
+              if (balonElement.body) {
+                balonElement.body.velocity.set(0, 0, 0);
+                balonElement.body.angularVelocity.set(0, 0, 0);
+              }
+            }
           }
-        }
-      });
-
-      // Soltar el balón con click derecho o tecla
-      document.addEventListener('mouseup', (event) => {
-        if (balonAggarado) {
-          // Soltar el balón y lanzarlo
-          balonAggarado = false;
-          balonElement.setAttribute('data-agarrado', 'false');
-          balonElement.setAttribute('color', '#FF0000'); // Volver al color original
-
-          if (balonElement.body) {
-            // Obtener dirección hacia donde mira la cámara
-            const cameraObject = cameraElement.getObject3D('camera');
-            const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(cameraObject.quaternion);
-            
-            // Velocidad base más velocidad del mouse
-            const velocidadBase = 25;
-            const velocidadMouse = Math.sqrt(velocidadMouseX ** 2 + velocidadMouseY ** 2) * 0.3;
-            
-            // Aplicar velocidad
-            balonElement.body.velocity.set(
-              direction.x * velocidadBase + velocidadMouseX * 0.8,
-              direction.y * velocidadBase + velocidadMouseY * 0.8,
-              direction.z * velocidadBase
-            );
-
-            // Agregar rotación al balón
-            balonElement.body.angularVelocity.set(
-              velocidadMouseY * 0.5,
-              velocidadMouseX * 0.5,
-              (velocidadMouseX - velocidadMouseY) * 0.3
-            );
-          }
-        }
-      });
-
-      // Movimiento mejorado del mouse mientras el balón está agarrado
-      window.addEventListener('mousemove', (event) => {
-        if (balonAggarado && cameraElement && balonElement) {
-          // Calcular velocidad del mouse
-          velocidadMouseX = (event.clientX - posicionMouseAnterior.x);
-          velocidadMouseY = (event.clientY - posicionMouseAnterior.y);
-
-          // Posicionar el balón frente a la cámara
-          const cameraObject = cameraElement.getObject3D('camera');
-          const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(cameraObject.quaternion);
-          const cameraPos = cameraElement.getAttribute('position');
           
-          // Permitir mover el balón hacia arriba/abajo con el mouse
-          const offsetVertical = (event.clientY - window.innerHeight / 2) * 0.002;
-          const offsetHorizontal = (event.clientX - window.innerWidth / 2) * 0.002;
-          
-          const posX = cameraPos.x + direction.x * distanciaBalonCamara + offsetHorizontal;
-          const posY = cameraPos.y + direction.y * distanciaBalonCamara + offsetVertical;
-          const posZ = cameraPos.z + direction.z * distanciaBalonCamara;
-
-          balonElement.setAttribute('position', {
-            x: posX,
-            y: posY,
-            z: posZ
-          });
-
-          // Aplicar pequeña rotación visual mientras se mueve
-          if (balonElement.body) {
-            balonElement.body.velocity.set(0, 0, 0);
-            balonElement.body.angularVelocity.set(0, 0, 0);
-          }
-
-          posicionMouseAnterior = { x: event.clientX, y: event.clientY };
+          requestAnimationFrame(tick);
         }
-      });
+        tick();
+      }
 
-      // Ajustar distancia del balón con scroll
-      window.addEventListener('wheel', (event) => {
-        if (balonAggarado) {
-          event.preventDefault();
-          distanciaBalonCamara += event.deltaY > 0 ? -0.1 : 0.1;
-          distanciaBalonCamara = Math.max(1.5, Math.min(4, distanciaBalonCamara));
-        }
-      }, { passive: false });
-
-      // Soltar balón con tecla ESC
-      window.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && balonAggarado) {
-          const mouseUpEvent = new MouseEvent('mouseup');
-          document.dispatchEvent(mouseUpEvent);
-        }
-      });
+      const sceneEl = document.querySelector('a-scene');
+      if (sceneEl) {
+        if (sceneEl.hasLoaded) startTickLoop();
+        else sceneEl.addEventListener('renderstart', startTickLoop);
+      } else {
+        // fallback si no se encuentra la escena
+        startTickLoop();
+      }
     </script>
